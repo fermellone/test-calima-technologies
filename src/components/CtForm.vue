@@ -64,8 +64,6 @@
           :maxlength="phoneFieldMaxLength"
           autocomplete="_"
         />
-        <pre>{{ phoneFieldMaxLength }}</pre>
-        <pre>{{ phoneFieldMaxLength }}</pre>
       </div>
     </div>
     <button type="submit" :disabled="isSaveButtonDisabled">Guardar</button>
