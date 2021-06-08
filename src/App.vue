@@ -1,10 +1,18 @@
 <template>
-  <div id="app"></div>
+  <div id="app">
+    <h1>Test: Formulario</h1>
+    <h2>Calima Thechnologies</h2>
+    <ct-form> </ct-form>
+  </div>
 </template>
 
 <script>
+import CtForm from "@/components/CtForm";
 export default {
   name: "App",
+  components: {
+    CtForm,
+  },
 };
 </script>
 
