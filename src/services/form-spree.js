@@ -1,6 +1,8 @@
+const host = "https://formspree.io";
+
 export default {
   request: async ({ url = "", method = "GET", body = {} }) => {
-    const response = await fetch(url, {
+    const response = await fetch(`${host}${url}`, {
       method: method.toUpperCase(),
       mode: "cors",
       cache: "no-cache",
@@ -18,7 +20,7 @@ export default {
     if (data.error && data.errors[0].field === "email") {
       throw new Error("Insertar una direción de correo válida.");
     } else {
-      return { ...data, next: `https://formspree.io${data.next}` };
+      return { ...data, next: `${host}${data.next}` };
     }
   },
 };

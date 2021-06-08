@@ -199,7 +199,7 @@ export default {
     async save() {
       try {
         const result = await formSpreeService.request({
-          url: "https://formspree.io/f/xqkwbznb",
+          url: "/f/xqkwbznb",
           body: this.form,
           method: "POST",
         });
