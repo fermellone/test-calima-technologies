@@ -73,6 +73,8 @@
 <script>
 const countriesData = require("@/mocks/countries_data.json");
 
+import formSpreeService from "@/services/form-spree";
+
 export default {
   name: "CtForm",
   data() {
@@ -97,6 +99,7 @@ export default {
       const country = this.getCountryByName(newVal);
       this.form.city = country.cities[0];
     },
+
     phoneFieldMaxLength(newVal) {
       this.form.phoneNumber = this.form.phoneNumber.substring(0, newVal);
     },
@@ -107,11 +110,13 @@ export default {
         return [...acc, curr.country];
       }, []);
     },
+
     cities() {
       const country = this.getCountryByName(this.form.country);
 
       return country.cities || [];
     },
+
     phonePrefixes() {
       return this.countriesData.reduce((acc, curr) => {
         return [
@@ -124,6 +129,7 @@ export default {
         ];
       }, []);
     },
+
     phoneFieldMaxLength() {
       const countryData = this.countriesData.find(
         ({ dialCode }) =>
@@ -139,6 +145,7 @@ export default {
 
       return 9;
     },
+
     countryFlag() {
       const { country, flag } = this.countriesData.find(({ dialCode }) => {
         return this.normalizePhonePrefix(dialCode) === this.form.phonePrefix;
@@ -146,6 +153,7 @@ export default {
 
       return { country, flag };
     },
+
     isSaveButtonDisabled() {
       const formFields = Object.entries(this.form);
       // disable no-unused-vars
@@ -161,16 +169,18 @@ export default {
         this.countriesData[0].dialCode
       );
     },
+
     getCountryByName(countryName) {
       return this.countriesData.find(({ country }) => {
         return country === countryName;
       });
     },
+
     normalizePhonePrefix(dialCode) {
       return `+${dialCode.replace("+", "")}`;
     },
+
     async postData(url = "", data = {}) {
-      // Opciones por defecto estan marcadas con un *
       const response = await fetch(url, {
         method: "POST",
         mode: "cors",
@@ -185,24 +195,22 @@ export default {
       });
       return response.json();
     },
+
     async save() {
       try {
-        const result = await this.postData(
-          "https://formspree.io/f/xqkwbznb",
-          this.form
-        );
-        this.isSaving = false;
-        if (result.ok) {
-          window.location.href = `https://formspree.io${result.next}`;
-        } else {
-          throw new Error("Error while saving the form.");
-        }
+        const result = await formSpreeService.request({
+          url: "https://formspree.io/f/xqkwbznb",
+          body: this.form,
+          method: "POST",
+        });
+        window.location.href = result.next;
       } catch (error) {
         console.error(error);
-        alert("Ha ocurrido un error, por favor intente más tarde.");
+        alert(error);
       }
     },
   },
+
   created() {
     this.fetchFormSelects();
   },
