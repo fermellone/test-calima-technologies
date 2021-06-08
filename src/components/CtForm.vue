@@ -1,5 +1,5 @@
 <template>
-  <form class="form">
+  <form class="form" @submit.prevent="save">
     <div class="form-group">
       <label for="country">País</label>
       <select id="country" v-model="form.country">
@@ -13,8 +13,8 @@
     <div class="form-group">
       <label for="city">Ciudad</label>
       <select id="city" v-model="form.city">
-        <template v-for="city in cities">
-          <option :value="city" :key="`city-${city}`">
+        <template v-for="(city, index) in cities">
+          <option :value="city" :key="`city-${city}-${index}`">
             {{ city }}
           </option>
         </template>
@@ -36,6 +36,7 @@
         type="email"
         id="email"
         v-model="form.email"
+        title="Introduzca una dirección de correo electrónico válida"
         maxlength="255"
         autocomplete="_"
       />
@@ -48,6 +49,7 @@
             <option
               :value="prefix.dialCode"
               :key="`phone-prefix-${prefix.dialCode}`"
+              :title="prefix.country"
             >
               {{ prefix.unicodeFlag | decode }} | {{ prefix.dialCode }}
             </option>
@@ -57,12 +59,16 @@
           type="tel"
           id="phone"
           v-model="form.phoneNumber"
-          :maxlength="phonesMaxLength[form.country.toLowerCase()]"
+          :pattern="`[0-9]{${phoneFieldMaxLength}}`"
+          title="Introduzca un número de teléfono válido"
+          :maxlength="phoneFieldMaxLength"
           autocomplete="_"
         />
+        <pre>{{ phoneFieldMaxLength }}</pre>
+        <pre>{{ phoneFieldMaxLength }}</pre>
       </div>
     </div>
-    <button type="button">Guardar</button>
+    <button type="submit" :disabled="isSaveButtonDisabled">Guardar</button>
   </form>
 </template>
 
@@ -83,8 +89,8 @@ export default {
       },
       countriesData: countriesData,
       phonesMaxLength: {
-        afghanistan: 8,
-        albania: 7,
+        colombia: 8,
+        spain: 9,
       },
     };
   },
@@ -92,6 +98,9 @@ export default {
     "form.country"(newVal) {
       const country = this.getCountryByName(newVal);
       this.form.city = country.cities[0];
+    },
+    phoneFieldMaxLength(newVal) {
+      this.form.phoneNumber = this.form.phoneNumber.substring(0, newVal);
     },
   },
   computed: {
@@ -117,12 +126,33 @@ export default {
         ];
       }, []);
     },
+    phoneFieldMaxLength() {
+      const countryData = this.countriesData.find(
+        ({ dialCode }) =>
+          this.normalizePhonePrefix(dialCode) === this.form.phonePrefix
+      );
+
+      if (
+        countryData &&
+        this.phonesMaxLength[countryData.country.toLowerCase()]
+      ) {
+        return this.phonesMaxLength[countryData.country.toLowerCase()];
+      }
+
+      return 9;
+    },
     countryFlag() {
       const { country, flag } = this.countriesData.find(({ dialCode }) => {
         return this.normalizePhonePrefix(dialCode) === this.form.phonePrefix;
       });
 
       return { country, flag };
+    },
+    isSaveButtonDisabled() {
+      const formFields = Object.entries(this.form);
+      // disable no-unused-vars
+      // eslint-disable-next-line
+      return formFields.some(([_, value]) => !value);
     },
   },
   methods: {
@@ -140,6 +170,39 @@ export default {
     },
     normalizePhonePrefix(dialCode) {
       return `+${dialCode.replace("+", "")}`;
+    },
+    async postData(url = "", data = {}) {
+      // Opciones por defecto estan marcadas con un *
+      const response = await fetch(url, {
+        method: "POST",
+        mode: "cors",
+        cache: "no-cache",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        redirect: "follow",
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify(data),
+      });
+      return response.json();
+    },
+    async save() {
+      try {
+        const result = await this.postData(
+          "https://formspree.io/f/xqkwbznb",
+          this.form
+        );
+        this.isSaving = false;
+        if (result.ok) {
+          window.location.href = `https://formspree.io${result.next}`;
+        } else {
+          throw new Error("Error while saving the form.");
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Ha ocurrido un error, por favor intente más tarde.");
+      }
     },
   },
   created() {
