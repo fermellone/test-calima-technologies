@@ -10,7 +10,10 @@
             "Shar",
             "Sharif",
             "Wazir Akbar Khan"
-        ]
+        ],
+        "unicodeFlag": "🇦🇫",
+        "flag": "https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Afghanistan.svg",
+        "dialCode": "93"
     },
     {
         "country": "Albania",
@@ -21,7 +24,10 @@
             "Shkoder",
             "Tirana",
             "Ura Vajgurore"
-        ]
+        ],
+        "unicodeFlag": "🇦🇱",
+        "flag": "https://upload.wikimedia.org/wikipedia/commons/3/36/Flag_of_Albania.svg",
+        "dialCode": "355"
     },
     {
         "country": "Algeria",
@@ -58,7 +64,10 @@
             "Tizi",
             "Tizi Ouzou",
             "Tlemcen"
-        ]
+        ],
+        "unicodeFlag": "🇩🇿",
+        "flag": "https://upload.wikimedia.org/wikipedia/commons/7/77/Flag_of_Algeria.svg",
+        "dialCode": "213"
     },
     {
         "country": "Andorra",
@@ -74,7 +83,10 @@
             "Santa Coloma",
             "Sispony",
             "Soldeu"
-        ]
+        ],
+        "unicodeFlag": "🇦🇩",
+        "flag": "https://upload.wikimedia.org/wikipedia/commons/1/19/Flag_of_Andorra.svg",
+        "dialCode": "376"
     },
     {
         "country": "Angola",
@@ -100,6 +112,9 @@
             "Piri",
             "Saurimo",
             "Talatona"
-        ]
+        ],
+        "unicodeFlag": "🇦🇴",
+        "flag": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Flag_of_Angola.svg",
+        "dialCode": "244"
     }
 ]
