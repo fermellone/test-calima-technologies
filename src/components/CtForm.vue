@@ -49,7 +49,7 @@
             <option
               :value="prefix.dialCode"
               :key="`phone-prefix-${index}-${prefix.dialCode}`"
-              :title="prefix.country"
+              :title="prefix.name"
             >
               {{ prefix.unicodeFlag | decode }} | {{ prefix.dialCode }}
             </option>
@@ -71,22 +71,28 @@
 </template>
 
 <script>
-import { saveForm } from "@/api/formSpree";
-
 import { getCountriesData } from "@/api/countriesNow";
+
+const initialForm = {
+  country: "",
+  city: "",
+  fullname: "",
+  email: "",
+  phoneNumber: "",
+  phonePrefix: "",
+};
 
 export default {
   name: "CtForm",
+  props: {
+    offline: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
-      form: {
-        country: "",
-        city: "",
-        fullname: "",
-        email: "",
-        phoneNumber: "",
-        phonePrefix: "",
-      },
+      form: { ...initialForm },
       countriesData: [],
       phonesMaxLength: {
         colombia: 8,
@@ -129,28 +135,26 @@ export default {
               dialCode: this.normalizePhonePrefix(curr.dialCode),
             },
           ];
-        }, []);
+        }, [])
+        .sort(
+          (a, b) =>
+            this.normalizePhonePrefix(a.dialCode) <
+            this.normalizePhonePrefix(b.dialCode)
+        );
     },
 
     phoneFieldMaxLength() {
-      const countryData = this.countriesData.find(
-        ({ dialCode }) =>
-          this.normalizePhonePrefix(dialCode) === this.form.phonePrefix
-      );
+      const countryData = this.countriesData
+        .filter(({ dialCode }) => !!dialCode)
+        .find(({ dialCode }) => {
+          return this.normalizePhonePrefix(dialCode) === this.form.phonePrefix;
+        });
 
       if (countryData && this.phonesMaxLength[countryData.name.toLowerCase()]) {
         return this.phonesMaxLength[countryData.name.toLowerCase()];
       }
 
       return 9;
-    },
-
-    countryFlag() {
-      const { name, unicodeFlag } = this.countriesData.find(({ dialCode }) => {
-        return this.normalizePhonePrefix(dialCode) === this.form.phonePrefix;
-      });
-
-      return { name, unicodeFlag };
     },
 
     isSaveButtonDisabled() {
@@ -161,15 +165,18 @@ export default {
     },
   },
   methods: {
-    async fetchFormSelects() {
+    fetchFormSelects() {
+      this.form.country = this.countriesData[0].name;
+      this.form.city = this.countriesData[0].cities[0];
+      this.form.phonePrefix = this.normalizePhonePrefix(
+        this.countriesData[0].dialCode
+      );
+    },
+    async initialize() {
       try {
         this.countriesData = await getCountriesData();
 
-        this.form.country = this.countriesData[0].name;
-        this.form.city = this.countriesData[0].cities[0];
-        this.form.phonePrefix = this.normalizePhonePrefix(
-          this.countriesData[0].dialCode
-        );
+        this.fetchFormSelects();
       } catch (error) {
         console.error(error);
         alert("Algo anda mal");
@@ -187,18 +194,18 @@ export default {
     },
 
     async save() {
-      try {
-        const result = await saveForm(this.form);
-        window.location.href = result.next;
-      } catch (error) {
-        console.error(error);
-        alert(error);
+      this.$emit("save", this.form);
+      if (this.offline) {
+        this.form = {
+          ...initialForm,
+        };
+        this.fetchFormSelects();
       }
     },
   },
 
   created() {
-    this.fetchFormSelects();
+    this.initialize();
   },
 };
 </script>
