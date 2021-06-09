@@ -1,4 +1,4 @@
-export const host = "https://countries-now-clone.herokuapp.com";
+export const host = "https://countriesnow.space";
 
 export const request = async ({ url = "", method = "GET", body = {} }) => {
   let options = {
