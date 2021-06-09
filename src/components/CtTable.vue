@@ -17,9 +17,9 @@
         :key="`user-${item.fullname}-${index}`"
       >
         <td>{{ item.fullname }}</td>
-        <td>{{ item.email }}</td>
         <td>{{ item.country }}</td>
         <td>{{ item.city }}</td>
+        <td>{{ item.email }}</td>
         <td>{{ item.phonePrefix }} {{ item.phoneNumber }}</td>
         <td v-for="action in actions" :key="`action-${action}`">
           <button type="button" @click="$emit(action, index)">
