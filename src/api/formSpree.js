@@ -1,4 +1,4 @@
-import { request } from "@/services/form-spree";
+import { request } from "@/services/formSpree";
 
 export function saveForm(body) {
   return request({
