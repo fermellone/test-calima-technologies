@@ -73,7 +73,7 @@
 <script>
 const countriesData = require("@/mocks/countries_data.json");
 
-import formSpreeService from "@/services/form-spree";
+import { saveForm } from "@/api/formSpree";
 
 export default {
   name: "CtForm",
@@ -198,11 +198,7 @@ export default {
 
     async save() {
       try {
-        const result = await formSpreeService.request({
-          url: "/f/xqkwbznb",
-          body: this.form,
-          method: "POST",
-        });
+        const result = await saveForm(this.form);
         window.location.href = result.next;
       } catch (error) {
         console.error(error);
