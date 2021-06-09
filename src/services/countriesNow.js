@@ -1,4 +1,4 @@
-export const host = "https://countriesnow.space/api/v0.1";
+export const host = "https://countries-now-clone.herokuapp.com";
 
 export const request = async ({ url = "", method = "GET", body = {} }) => {
   let options = {
@@ -22,9 +22,7 @@ export const request = async ({ url = "", method = "GET", body = {} }) => {
 
   const response = await fetch(`${host}${url}`, options);
 
-  let responseJson = await response.json();
-
-  console.log(responseJson);
+  const responseJson = await response.json();
 
   if (responseJson.error) {
     throw new Error("Error en la matrix");
