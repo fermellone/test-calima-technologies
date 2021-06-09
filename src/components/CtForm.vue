@@ -45,10 +45,10 @@
       <label for="phone">Teléfono</label>
       <div class="phone-input">
         <select id="phone-prefix" v-model="form.phonePrefix">
-          <template v-for="prefix in phonePrefixes">
+          <template v-for="(prefix, index) in phonePrefixes">
             <option
               :value="prefix.dialCode"
-              :key="`phone-prefix-${prefix.dialCode}`"
+              :key="`phone-prefix-${index}-${prefix.dialCode}`"
               :title="prefix.country"
             >
               {{ prefix.unicodeFlag | decode }} | {{ prefix.dialCode }}
@@ -71,9 +71,9 @@
 </template>
 
 <script>
-const countriesData = require("@/mocks/countries_data.json");
-
 import { saveForm } from "@/api/formSpree";
+
+import { getCountriesData } from "@/api/countriesNow";
 
 export default {
   name: "CtForm",
@@ -87,7 +87,7 @@ export default {
         phoneNumber: "",
         phonePrefix: "",
       },
-      countriesData: countriesData,
+      countriesData: [],
       phonesMaxLength: {
         colombia: 8,
         spain: 9,
@@ -107,27 +107,29 @@ export default {
   computed: {
     countries() {
       return this.countriesData.reduce((acc, curr) => {
-        return [...acc, curr.country];
+        return [...acc, curr.name];
       }, []);
     },
 
     cities() {
       const country = this.getCountryByName(this.form.country);
 
-      return country.cities || [];
+      return country ? country.cities : [];
     },
 
     phonePrefixes() {
-      return this.countriesData.reduce((acc, curr) => {
-        return [
-          ...acc,
-          {
-            ...curr,
-            // Normalize dialCodes
-            dialCode: this.normalizePhonePrefix(curr.dialCode),
-          },
-        ];
-      }, []);
+      return this.countriesData
+        .filter((c) => !!c.dialCode)
+        .reduce((acc, curr) => {
+          return [
+            ...acc,
+            {
+              ...curr,
+              // Normalize dialCodes
+              dialCode: this.normalizePhonePrefix(curr.dialCode),
+            },
+          ];
+        }, []);
     },
 
     phoneFieldMaxLength() {
@@ -136,22 +138,19 @@ export default {
           this.normalizePhonePrefix(dialCode) === this.form.phonePrefix
       );
 
-      if (
-        countryData &&
-        this.phonesMaxLength[countryData.country.toLowerCase()]
-      ) {
-        return this.phonesMaxLength[countryData.country.toLowerCase()];
+      if (countryData && this.phonesMaxLength[countryData.name.toLowerCase()]) {
+        return this.phonesMaxLength[countryData.name.toLowerCase()];
       }
 
       return 9;
     },
 
     countryFlag() {
-      const { country, flag } = this.countriesData.find(({ dialCode }) => {
+      const { name, unicodeFlag } = this.countriesData.find(({ dialCode }) => {
         return this.normalizePhonePrefix(dialCode) === this.form.phonePrefix;
       });
 
-      return { country, flag };
+      return { name, unicodeFlag };
     },
 
     isSaveButtonDisabled() {
@@ -162,38 +161,29 @@ export default {
     },
   },
   methods: {
-    fetchFormSelects() {
-      this.form.country = this.countriesData[0].country;
-      this.form.city = this.countriesData[0].cities[0];
-      this.form.phonePrefix = this.normalizePhonePrefix(
-        this.countriesData[0].dialCode
-      );
+    async fetchFormSelects() {
+      try {
+        this.countriesData = await getCountriesData();
+
+        this.form.country = this.countriesData[0].name;
+        this.form.city = this.countriesData[0].cities[0];
+        this.form.phonePrefix = this.normalizePhonePrefix(
+          this.countriesData[0].dialCode
+        );
+      } catch (error) {
+        console.error(error);
+        alert("Algo anda mal");
+      }
     },
 
     getCountryByName(countryName) {
-      return this.countriesData.find(({ country }) => {
-        return country === countryName;
+      return this.countriesData.find(({ name }) => {
+        return name === countryName;
       });
     },
 
     normalizePhonePrefix(dialCode) {
       return `+${dialCode.replace("+", "")}`;
-    },
-
-    async postData(url = "", data = {}) {
-      const response = await fetch(url, {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        credentials: "same-origin",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        redirect: "follow",
-        referrerPolicy: "no-referrer",
-        body: JSON.stringify(data),
-      });
-      return response.json();
     },
 
     async save() {
