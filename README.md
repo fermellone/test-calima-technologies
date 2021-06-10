@@ -2,6 +2,9 @@
 
 ## Deployed to Netlify: [Link](https://test-calima-tech.netlify.app)
 
+![imagen](https://user-images.githubusercontent.com/38559436/121539576-ca0c0580-c9d3-11eb-93f0-8b94b59c7f7c.png)
+
+
 ## Project setup
 ```
 yarn install
