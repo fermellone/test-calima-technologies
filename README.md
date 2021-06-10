@@ -1,5 +1,7 @@
 # test-calima-tech
 
+## Deployed to Netlify: [Link](https://test-calima-tech.netlify.app)
+
 ## Project setup
 ```
 yarn install
