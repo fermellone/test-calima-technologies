@@ -13,7 +13,7 @@
       <t-input
         type="text"
         id="fullname"
-        v-model="form.fullname"
+        v-model.trim="form.fullname"
         maxlength="40"
         autocomplete="_"
         required
@@ -24,7 +24,7 @@
       <t-input
         type="email"
         id="email"
-        v-model="form.email"
+        v-model.trim="form.email"
         title="Introduzca una dirección de correo electrónico válida"
         maxlength="255"
         autocomplete="_"
@@ -47,7 +47,7 @@
           <t-input
             type="tel"
             id="phone"
-            v-model="form.phoneNumber"
+            v-model.trim="form.phoneNumber"
             :pattern="`[0-9]{${phoneFieldMaxLength}}`"
             title="Introduzca un número de teléfono válido"
             :maxlength="phoneFieldMaxLength"
