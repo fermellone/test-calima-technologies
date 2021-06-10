@@ -1,8 +1,16 @@
 <template>
   <div id="app">
-    <h1>Test: Formulario</h1>
-    <h2>Calima Thechnologies</h2>
+    <div class="brand-logo">
+      <img
+        src="https://calimatechnologies.com/wp-content/uploads/2020/06/Logotipo-Calima_h.png"
+        class="mb-3"
+        alt="Calima Technologies"
+        width="50%"
+      />
+    </div>
+    <h1 class="text-4xl font-bold mb-6">Test: Formulario</h1>
     <ct-nav :view.sync="view" />
+    <hr class="mt-2" />
     <div class="form-container" v-show="view === 'form'">
       <ct-message :message="isOrNotOnlineMessage" />
       <ct-session-type-selector :is-online.sync="isOnline" />
@@ -122,7 +130,16 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  min-width: 320px;
+
+  .brand-logo {
+    width: 100%;
+    img {
+      margin: 2.25rem auto;
+      width: 80%;
+      max-width: 250px;
+    }
+  }
 
   .list-container {
     margin: 2rem auto 0;

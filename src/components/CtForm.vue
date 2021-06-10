@@ -2,71 +2,65 @@
   <form class="form" @submit.prevent="save">
     <div class="form-group">
       <label for="country">País</label>
-      <select id="country" v-model="form.country">
-        <template v-for="country in countries">
-          <option :value="country" :key="`country-${country}`">
-            {{ country }}
-          </option>
-        </template>
-      </select>
+      <t-rich-select id="country" v-model="form.country" :options="countries" />
     </div>
     <div class="form-group">
       <label for="city">Ciudad</label>
-      <select id="city" v-model="form.city">
-        <template v-for="(city, index) in cities">
-          <option :value="city" :key="`city-${city}-${index}`">
-            {{ city }}
-          </option>
-        </template>
-      </select>
+      <t-rich-select id="city" v-model="form.city" :options="cities" />
     </div>
     <div class="form-group">
       <label for="fullname">Nombre completo</label>
-      <input
+      <t-input
         type="text"
         id="fullname"
         v-model="form.fullname"
         maxlength="40"
         autocomplete="_"
+        required
       />
     </div>
     <div class="form-group">
       <label for="email">Correo electrónico</label>
-      <input
+      <t-input
         type="email"
         id="email"
         v-model="form.email"
         title="Introduzca una dirección de correo electrónico válida"
         maxlength="255"
         autocomplete="_"
+        required
       />
     </div>
     <div class="form-group">
       <label for="phone">Teléfono</label>
-      <div class="phone-input">
-        <select id="phone-prefix" v-model="form.phonePrefix">
-          <template v-for="(prefix, index) in phonePrefixes">
-            <option
-              :value="prefix.dialCode"
-              :key="`phone-prefix-${index}-${prefix.dialCode}`"
-              :title="prefix.name"
-            >
-              {{ prefix.unicodeFlag | decode }} | {{ prefix.dialCode }}
-            </option>
-          </template>
-        </select>
-        <input
-          type="tel"
-          id="phone"
-          v-model="form.phoneNumber"
-          :pattern="`[0-9]{${phoneFieldMaxLength}}`"
-          title="Introduzca un número de teléfono válido"
-          :maxlength="phoneFieldMaxLength"
-          autocomplete="_"
-        />
+      <div class="flex w-full">
+        <div class="w-2/5">
+          <t-rich-select
+            id="phone-prefix"
+            v-model="form.phonePrefix"
+            :options="phonePrefixes"
+            value-attribute="dialCode"
+            text-attribute="text"
+          />
+        </div>
+        <div class="w-3/5">
+          <t-input
+            type="tel"
+            id="phone"
+            v-model="form.phoneNumber"
+            :pattern="`[0-9]{${phoneFieldMaxLength}}`"
+            title="Introduzca un número de teléfono válido"
+            :maxlength="phoneFieldMaxLength"
+            :variant="phoneNumberVariant"
+            autocomplete="_"
+            required
+          />
+        </div>
       </div>
     </div>
-    <button type="submit" :disabled="isSaveButtonDisabled">Guardar</button>
+    <t-button type="submit" class="button" :disabled="isSaveButtonDisabled">
+      Guardar
+    </t-button>
   </form>
 </template>
 
@@ -140,7 +134,13 @@ export default {
           (a, b) =>
             this.normalizePhonePrefix(a.dialCode) <
             this.normalizePhonePrefix(b.dialCode)
-        );
+        )
+        .map((c) => {
+          return {
+            ...c,
+            text: `${c.unicodeFlag} | ${c.dialCode}`,
+          };
+        });
     },
 
     phoneFieldMaxLength() {
@@ -161,7 +161,21 @@ export default {
       const formFields = Object.entries(this.form);
       // disable no-unused-vars
       // eslint-disable-next-line
-      return formFields.some(([_, value]) => !value);
+      return formFields.some(([_, value]) => !value) || this.phoneNumberVariant === "danger" || !this.isEmailValid
+    },
+
+    phoneNumberVariant() {
+      return (
+        (this.form.phoneNumber &&
+          this.form.phoneNumber.length < this.phoneFieldMaxLength) ||
+        (isNaN(this.form.phoneNumber) ? "danger" : "")
+      );
+    },
+
+    isEmailValid() {
+      return (
+        /.*@.*[.]/g.test(this.form.email) && !this.form.email.endsWith(".")
+      );
     },
   },
   methods: {
@@ -215,24 +229,32 @@ export default {
   width: 40%;
   border: 1px solid lightgray;
   padding: 1.5rem 2rem;
-  margin: 0 auto;
+  margin: 0 auto 2rem;
+  min-width: 320px;
   &-group {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     margin: 1.2rem 0;
 
     label {
       margin-bottom: 0.2rem;
+      width: 100%;
+      text-align: left;
     }
 
     .phone-input > * {
       display: inline-block;
     }
 
+    .form-group > .relative {
+      width: 100%;
+    }
+
     #phone-prefix {
       margin-right: 0.2rem;
+      color: blue;
       @media screen and (max-width: 615px) {
         margin-bottom: 0.2rem;
       }
@@ -240,6 +262,7 @@ export default {
   }
   button {
     margin-top: 1.2rem;
+    width: 100%;
   }
 }
 </style>

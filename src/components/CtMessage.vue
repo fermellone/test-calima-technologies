@@ -20,12 +20,14 @@ export default {
     width: 70%;
     margin: auto;
     min-height: 5rem;
-    display: table;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     & > p {
       background: lightgray;
       border-radius: 5px;
-      padding: 0.3rem 0.1rem;
+      padding: 0.5rem 1rem;
     }
   }
 }
